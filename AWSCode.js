@@ -408,10 +408,345 @@ dynamodb.batchGetItem(params, function (err, data) {
 }
 (Optional) Add a new ProjectionExpression that retrieves at least one nested attribute. Use document path notation to do this.
 
+Query and Scan the Table
+Run a Query
+var params = {
+    TableName: "Music",
+    KeyConditionExpression: "Artist = :artist",
+    ExpressionAttributeValues: {
+        ":artist": "No One You Know"
+    }
+};
 
+dynamodb.query(params, function(err, data) {
+    if (err)
+        console.log(JSON.stringify(err, null, 2));
+    else
+        console.log(JSON.stringify(data, null, 2));
+});
+=> 
+{
+  "Items": [
+    {
+      "Genre": "Country",
+      "AlbumTitle": "Hey Now",
+      "Artist": "No One You Know",
+      "CriticRating": 8.4,
+      "SongTitle": "My Dog Spot",
+      "Price": 1.98
+    },
+    {
+      "Genre": "Country",
+      "AlbumTitle": "Somewhat Famous",
+      "Year": 1984,
+      "Artist": "No One You Know",
+      "CriticRating": 8.4,
+      "SongTitle": "Somewhere Down The Road"
+    }
+  ],
+  "Count": 2,
+  "ScannedCount": 2
+}
 
+Query Using Key Attributes
+var params = {
+    TableName: "Music",
+    ProjectionExpression: "SongTitle",
+    KeyConditionExpression: "Artist = :artist and begins_with(SongTitle, :letter)",
+    ExpressionAttributeValues: {
+        ":artist": "The Acme Band",
+        ":letter": "S"
+    }
+};
+=> 
+{
+  "Items": [
+    {
+      "SongTitle": "Still In Love"
+    }
+  ],
+  "Count": 1,
+  "ScannedCount": 1
+}
 
+Filter Query Results
+var params = {
+    TableName: "Music",
+    ProjectionExpression: "SongTitle, PromotionInfo.Rotation",
+    KeyConditionExpression: "Artist = :artist",
+    FilterExpression: "size(PromotionInfo.RadioStationsPlaying) >= :howmany",
+    ExpressionAttributeValues: {
+        ":artist": "The Acme Band",
+        ":howmany": 3
+    },
+};
+=> 
+{
+  "Items": [
+    {
+      "PromotionInfo": {
+        "Rotation": "Heavy"
+      },
+      "SongTitle": "Still In Love"
+    }
+  ],
+  "Count": 1,
+  "ScannedCount": 2
+}
 
+Scan the Table
+var params = {
+    TableName: "Music"
+};
 
+dynamodb.scan(params, function(err, data) {
+    if (err)
+        console.log(JSON.stringify(err, null, 2));
+    else
+        console.log(JSON.stringify(data, null, 2));
+});
+=> 
+{
+  "Items": [
+    {
+      "Genre": "Rock",
+      "AlbumTitle": "The Buck Starts Here",
+      "Artist": "The Acme Band",
+      "SongTitle": "Look Out, World",
+      "Price": 0.99
+    },
+    {
+      "Genre": "Rock",
+      "PromotionInfo": {
+        "RadioStationsPlaying": [
+          "KHCR",
+          "KBQX",
+          "WTNR",
+          "WJJH"
+        ],
+        "Rotation": "Heavy",
+        "TourDates": {
+          "Seattle": "20150625",
+          "Cleveland": "20150630"
+        }
+      },
+      "AlbumTitle": "The Buck Starts Here",
+      "Artist": "The Acme Band",
+      "SongTitle": "Still In Love",
+      "Price": 2.47
+    },
+    {
+      "Genre": "Country",
+      "AlbumTitle": "Hey Now",
+      "Artist": "No One You Know",
+      "CriticRating": 8.4,
+      "SongTitle": "My Dog Spot",
+      "Price": 1.98
+    },
+    {
+      "Genre": "Country",
+      "AlbumTitle": "Somewhat Famous",
+      "Year": 1984,
+      "Artist": "No One You Know",
+      "CriticRating": 8.4,
+      "SongTitle": "Somewhere Down The Road"
+    }
+  ],
+  "Count": 4,
+  "ScannedCount": 4
+}
 
+Work with a Secondary Index
+Create a Global Secondary Index
+var params = {
+    TableName: "Music",
+    AttributeDefinitions:[
+        {AttributeName: "Genre", AttributeType: "S"},
+        {AttributeName: "Price", AttributeType: "N"}
+    ],
+    GlobalSecondaryIndexUpdates: [
+        {
+            Create: {
+                IndexName: "GenreAndPriceIndex",
+                KeySchema: [
+                    {AttributeName: "Genre", KeyType: "HASH"},
+                    {AttributeName: "Price", KeyType: "RANGE"},
+                ],
+                Projection: {
+                    "ProjectionType": "ALL"
+                },
+                ProvisionedThroughput: {
+                    "ReadCapacityUnits": 1,"WriteCapacityUnits": 1
+                }
+            }
+        }
+    ]
+};
+dynamodb.updateTable(params, function(err, data) {
+    if (err)
+        console.log(JSON.stringify(err, null, 2));
+    else
+        console.log(JSON.stringify(data, null, 2));
+});
+=> 
+{
+  "TableDescription": {
+    "AttributeDefinitions": [
+      {
+        "AttributeName": "Price",
+        "AttributeType": "N"
+      },
+      {
+        "AttributeName": "SongTitle",
+        "AttributeType": "S"
+      },
+      {
+        "AttributeName": "Genre",
+        "AttributeType": "S"
+      },
+      {
+        "AttributeName": "Artist",
+        "AttributeType": "S"
+      }
+    ],
+    "TableName": "Music",
+    "KeySchema": [
+      {
+        "AttributeName": "Artist",
+        "KeyType": "HASH"
+      },
+      {
+        "AttributeName": "SongTitle",
+        "KeyType": "RANGE"
+      }
+    ],
+    "TableStatus": "ACTIVE",
+    "CreationDateTime": "2015-10-20T08:12:38.363Z",
+    "ProvisionedThroughput": {
+      "LastIncreaseDateTime": "1970-01-01T00:00:00.000Z",
+      "LastDecreaseDateTime": "1970-01-01T00:00:00.000Z",
+      "NumberOfDecreasesToday": 0,
+      "ReadCapacityUnits": 1,
+      "WriteCapacityUnits": 1
+    },
+    "TableSizeBytes": 503,
+    "ItemCount": 4,
+    "TableArn": "arn:aws:dynamodb:ddblocal:000000000000:table/Music",
+    "GlobalSecondaryIndexes": [
+      {
+        "IndexName": "GenreAndPriceIndex",
+        "KeySchema": [
+          {
+            "AttributeName": "Genre",
+            "KeyType": "HASH"
+          },
+          {
+            "AttributeName": "Price",
+            "KeyType": "RANGE"
+          }
+        ],
+        "Projection": {
+          "ProjectionType": "ALL"
+        },
+        "IndexStatus": "CREATING",
+        "Backfilling": false,
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": 1,
+          "WriteCapacityUnits": 1
+        },
+        "IndexArn": "arn:aws:dynamodb:ddblocal:000000000000:table/Music/index/GenreAndPriceIndex"
+      }
+    ]
+  }
+}
+
+Query the Index
+var params = {
+    TableName: "Music",
+    IndexName: "GenreAndPriceIndex",
+    KeyConditionExpression: "Genre = :genre",
+    ExpressionAttributeValues: {
+        ":genre": "Country"
+    },
+    ProjectionExpression: "SongTitle, Price"
+};
+
+dynamodb.query(params, function(err, data) {
+    if (err)
+        console.log(JSON.stringify(err, null, 2));
+    else
+        console.log(JSON.stringify(data, null, 2));
+});
+=> 
+{
+  "Items": [
+    {
+      "SongTitle": "My Dog Spot",
+      "Price": 1.98
+    }
+  ],
+  "Count": 1,
+  "ScannedCount": 1
+}
+
+var params = {
+    TableName: "Music",
+    IndexName: "GenreAndPriceIndex",
+    KeyConditionExpression: "Genre = :genre and Price > :price",
+    ExpressionAttributeValues: {
+        ":genre": "Country",
+        ":price": 2.00
+    },
+    ProjectionExpression: "SongTitle, Price"
+};
+=> 
+{
+  "Items": [],
+  "Count": 0,
+  "ScannedCount": 0
+}
+
+Scan the Index
+var params = {
+    TableName: "Music",
+    IndexName: "GenreAndPriceIndex",
+    ProjectionExpression: "Genre, Price, SongTitle, Artist, AlbumTitle"
+};
+
+dynamodb.scan(params, function(err, data) {
+    if (err)
+        console.log(JSON.stringify(err, null, 2));
+    else
+        console.log(JSON.stringify(data, null, 2));
+});
+=> 
+{
+  "Items": [
+    {
+      "Genre": "Country",
+      "AlbumTitle": "Hey Now",
+      "Artist": "No One You Know",
+      "Price": 1.98,
+      "SongTitle": "My Dog Spot"
+    },
+    {
+      "Genre": "Rock",
+      "AlbumTitle": "The Buck Starts Here",
+      "Artist": "The Acme Band",
+      "Price": 0.99,
+      "SongTitle": "Look Out, World"
+    },
+    {
+      "Genre": "Rock",
+      "AlbumTitle": "The Buck Starts Here",
+      "Artist": "The Acme Band",
+      "Price": 2.47,
+      "SongTitle": "Still In Love"
+    }
+  ],
+  "Count": 3,
+  "ScannedCount": 3
+}
+
+Modify Items in the Table
 

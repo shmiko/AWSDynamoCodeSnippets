@@ -749,4 +749,176 @@ dynamodb.scan(params, function(err, data) {
 }
 
 Modify Items in the Table
+Update an Item
+var params = {
+    TableName: "Music",
+    Key: {
+        "Artist":"No One You Know",
+        "SongTitle":"Call Me Today"
+    },
+    UpdateExpression: "SET RecordLabel = :label",
+    ExpressionAttributeValues: { 
+        ":label": "Global Records"
+    },
+    ReturnValues: "ALL_NEW"
+};
+
+dynamodb.updateItem(params, function(err, data) {
+    if (err)
+        console.log(JSON.stringify(err, null, 2));
+    else
+        console.log(JSON.stringify(data, null, 2));
+});
+=> 
+{
+  "Attributes": {
+    "Artist": "No One You Know",
+    "RecordLabel": "Global Records",
+    "SongTitle": "Call Me Today"
+  }
+}
+
+var params = {
+    TableName: "Music",
+    Key: {
+        "Artist":"No One You Know",
+        "SongTitle":"Call Me Today"
+    },
+    UpdateExpression: 
+        "SET Price = :price REMOVE Tags.Composers[2]",
+    ExpressionAttributeValues: { 
+        ":price": 0.89
+    },
+    ReturnValues: "ALL_NEW"
+};
+=> 
+{
+  "message": "The document path provided in the update expression is invalid for update",
+  "code": "ValidationException",
+  "time": "2015-10-20T10:22:43.009Z",
+  "statusCode": 400,
+  "retryable": false
+}
+
+when removing the REMOVE clause it works
+=> 
+{
+  "Attributes": {
+    "Artist": "No One You Know",
+    "Price": 0.89,
+    "SongTitle": "Call Me Today",
+    "RecordLabel": "Global Records"
+  }
+}
+
+Specify a Conditional Write
+
+var params = {
+    TableName: "Music",
+    Key: {
+        "Artist":"No One You Know",
+        "SongTitle":"Call Me Today"
+    },
+    UpdateExpression: "SET RecordLabel = :label",
+    ExpressionAttributeValues: { 
+        ":label": "New Wave Recordings, Inc."
+    },
+    ConditionExpression: "attribute_not_exists(RecordLabel)",
+    ReturnValues: "ALL_NEW"
+};
+
+=> 
+{
+  "message": "The conditional request failed",
+  "code": "ConditionalCheckFailedException",
+  "time": "2015-10-20T10:25:37.256Z",
+  "statusCode": 400,
+  "retryable": false
+}
+
+
+Specify an Atomic Counter
+var params = {
+    TableName: "Music",
+    Key: {
+        "Artist":"No One You Know",
+        "SongTitle":"Call Me Today"
+    },
+    UpdateExpression: "SET Plays = :val",
+    ExpressionAttributeValues: { 
+        ":val": 0
+    },
+    ReturnValues: "UPDATED_NEW"
+};
+=> 
+{
+  "Attributes": {
+    "Plays": 0
+  }
+}
+
+var params = {
+    TableName: "Music",
+    Key: {
+        "Artist":"No One You Know",
+        "SongTitle":"Call Me Today"
+    },
+    UpdateExpression: "SET Plays = Plays + :incr",
+    ExpressionAttributeValues: { 
+        ":incr": 1
+    },
+    ReturnValues: "UPDATED_NEW"
+};
+=> 
+{
+  "Attributes": {
+    "Plays": 1
+  }
+}
+rerun
+=> 
+{
+  "Attributes": {
+    "Plays": 2
+  }
+}
+
+Delete an Item
+var params = {
+    TableName: "Music",
+    Key: {
+        Artist: "The Acme Band", 
+        SongTitle: "Look Out, World"
+    }
+};
+
+dynamodb.deleteItem(params, function(err, data) {
+    if (err)
+        console.log(JSON.stringify(err, null, 2));
+    else
+        console.log(JSON.stringify(data, null, 2));
+});
+=> 
+{}
+
+Specify a Conditional Delete
+var params = {
+    TableName: "Music",
+    Key: {
+        Artist: "No One You Know", 
+        SongTitle: "My Dog Spot"
+    },
+    ConditionExpression: "Price = :price",
+    ExpressionAttributeValues: {
+        ":price": 0.00
+    }
+};
+=> 
+{
+  "message": "The conditional request failed",
+  "code": "ConditionalCheckFailedException",
+  "time": "2015-10-20T10:29:22.128Z",
+  "statusCode": 400,
+  "retryable": false
+}
 

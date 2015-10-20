@@ -660,5 +660,93 @@ dynamodb.updateTable(params, function(err, data) {
   }
 }
 
+Query the Index
+var params = {
+    TableName: "Music",
+    IndexName: "GenreAndPriceIndex",
+    KeyConditionExpression: "Genre = :genre",
+    ExpressionAttributeValues: {
+        ":genre": "Country"
+    },
+    ProjectionExpression: "SongTitle, Price"
+};
 
+dynamodb.query(params, function(err, data) {
+    if (err)
+        console.log(JSON.stringify(err, null, 2));
+    else
+        console.log(JSON.stringify(data, null, 2));
+});
+=> 
+{
+  "Items": [
+    {
+      "SongTitle": "My Dog Spot",
+      "Price": 1.98
+    }
+  ],
+  "Count": 1,
+  "ScannedCount": 1
+}
+
+var params = {
+    TableName: "Music",
+    IndexName: "GenreAndPriceIndex",
+    KeyConditionExpression: "Genre = :genre and Price > :price",
+    ExpressionAttributeValues: {
+        ":genre": "Country",
+        ":price": 2.00
+    },
+    ProjectionExpression: "SongTitle, Price"
+};
+=> 
+{
+  "Items": [],
+  "Count": 0,
+  "ScannedCount": 0
+}
+
+Scan the Index
+var params = {
+    TableName: "Music",
+    IndexName: "GenreAndPriceIndex",
+    ProjectionExpression: "Genre, Price, SongTitle, Artist, AlbumTitle"
+};
+
+dynamodb.scan(params, function(err, data) {
+    if (err)
+        console.log(JSON.stringify(err, null, 2));
+    else
+        console.log(JSON.stringify(data, null, 2));
+});
+=> 
+{
+  "Items": [
+    {
+      "Genre": "Country",
+      "AlbumTitle": "Hey Now",
+      "Artist": "No One You Know",
+      "Price": 1.98,
+      "SongTitle": "My Dog Spot"
+    },
+    {
+      "Genre": "Rock",
+      "AlbumTitle": "The Buck Starts Here",
+      "Artist": "The Acme Band",
+      "Price": 0.99,
+      "SongTitle": "Look Out, World"
+    },
+    {
+      "Genre": "Rock",
+      "AlbumTitle": "The Buck Starts Here",
+      "Artist": "The Acme Band",
+      "Price": 2.47,
+      "SongTitle": "Still In Love"
+    }
+  ],
+  "Count": 3,
+  "ScannedCount": 3
+}
+
+Modify Items in the Table
 

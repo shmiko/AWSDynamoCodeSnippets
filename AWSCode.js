@@ -922,3 +922,90 @@ var params = {
   "retryable": false
 }
 
+Clean Up
+To delete the table
+var params = {
+    TableName: "Music"
+};
+
+dynamodb.deleteTable(params, function(err, data) {
+    if (err)
+        console.log(JSON.stringify(err, null, 2));
+    else
+        console.log(JSON.stringify(data, null, 2));
+});
+
+=> 
+{
+  "TableDescription": {
+    "AttributeDefinitions": [
+      {
+        "AttributeName": "Price",
+        "AttributeType": "N"
+      },
+      {
+        "AttributeName": "SongTitle",
+        "AttributeType": "S"
+      },
+      {
+        "AttributeName": "Genre",
+        "AttributeType": "S"
+      },
+      {
+        "AttributeName": "Artist",
+        "AttributeType": "S"
+      }
+    ],
+    "TableName": "Music",
+    "KeySchema": [
+      {
+        "AttributeName": "Artist",
+        "KeyType": "HASH"
+      },
+      {
+        "AttributeName": "SongTitle",
+        "KeyType": "RANGE"
+      }
+    ],
+    "TableStatus": "ACTIVE",
+    "CreationDateTime": "2015-10-20T08:12:38.363Z",
+    "ProvisionedThroughput": {
+      "LastIncreaseDateTime": "1970-01-01T00:00:00.000Z",
+      "LastDecreaseDateTime": "1970-01-01T00:00:00.000Z",
+      "NumberOfDecreasesToday": 0,
+      "ReadCapacityUnits": 1,
+      "WriteCapacityUnits": 1
+    },
+    "TableSizeBytes": 496,
+    "ItemCount": 4,
+    "TableArn": "arn:aws:dynamodb:ddblocal:000000000000:table/Music",
+    "GlobalSecondaryIndexes": [
+      {
+        "IndexName": "GenreAndPriceIndex",
+        "KeySchema": [
+          {
+            "AttributeName": "Genre",
+            "KeyType": "HASH"
+          },
+          {
+            "AttributeName": "Price",
+            "KeyType": "RANGE"
+          }
+        ],
+        "Projection": {
+          "ProjectionType": "ALL"
+        },
+        "IndexStatus": "ACTIVE",
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": 1,
+          "WriteCapacityUnits": 1
+        },
+        "IndexSizeBytes": 496,
+        "ItemCount": 2,
+        "IndexArn": "arn:aws:dynamodb:ddblocal:000000000000:table/Music/index/GenreAndPriceIndex"
+      }
+    ]
+  }
+}
+
+

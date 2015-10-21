@@ -16,6 +16,8 @@ var params = {
     }
 };
 
+
+
 dynamodb.createTable(params, function(err, data) {
     if (err)
         console.log(JSON.stringify(err, null, 2));
@@ -25,7 +27,7 @@ dynamodb.createTable(params, function(err, data) {
 
 Get Table Desc
 var params = {
-    TableName: "Music"
+    TableName: "Musics"
 };
 
 dynamodb.describeTable(params, function(err, data) {

@@ -1,4 +1,7 @@
-db.grades.aggregate({$project:{'type':'exam'}},{'$group':{'_id':'$student_id', 'average':{$avg:'$score'}}},{$match:{'average':{$gte:65}}}, {'$sort':{'average':1}}, {'$limit':1})
+MongoDB .Net Wk2.1
+
+
+b.grades.aggregate({$project:{'type':'exam'}},{'$group':{'_id':'$student_id', 'average':{$avg:'$score'}}},{$match:{'average':{$gte:65}}}, {'$sort':{'average':1}}, {'$limit':1})
 
 db.grades.aggregate({'$group':{'_id':'$student_id', 'highest':{$gt:64}}, {'$sort':{'highest':-1}}, {'$limit':1})
 
@@ -9,27 +12,7 @@ db.grades.find({score:{$gt:64}}, {'$limit':1})
 
 db.grades.find({'type':'exam'});
 
-Windows PowerShell
-Copyright (C) 2009 Microsoft Corporation. All rights reserved.
 
-PS D:\Users\pjones.BSPGA> cd c:\
-PS C:\> cd '.\Program Files'
-PS C:\Program Files> cd '.\MongoDB 2.6 Standard'
-PS C:\Program Files\MongoDB 2.6 Standard> cd .\bin
-PS C:\Program Files\MongoDB 2.6 Standard\bin> mongo
-The term 'mongo' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the spell
-ing of the name, or if a path was included, verify that the path is correct and try again.
-At line:1 char:6
-+ mongo <<<<
-    + CategoryInfo          : ObjectNotFound: (mongo:String) [], CommandNotFoundException
-    + FullyQualifiedErrorId : CommandNotFoundException
-
-
-Suggestion [3,General]: The command mongo was not found, but does exist in the current location. Windows PowerShell does
-n't load commands from the current location by default. If you trust this command, instead type ".\mongo". See "get-help
- about_Command_Precedence" for more details.
-PS C:\Program Files\MongoDB 2.6 Standard\bin> .\mongo.exe
-MongoDB shell version: 2.6.8
 connecting to: test
 > show dbs
 admin         (empty)
@@ -686,4 +669,6 @@ Type "it" for more
 { "_id" : ObjectId("50906d7fa3c412bb040eb847"), "student_id" : 180, "type" : "exam", "score" : 72.82141551673207 }
 { "_id" : ObjectId("50906d7fa3c412bb040eb857"), "student_id" : 184, "type" : "exam", "score" : 74.07556531186303 }
 Type "it" for more
->
+>> db.grades.aggregate({$match:{'type':'exam','score':{$gte:65}}},{$sort:{'score':1}},{$limit:1})
+{ "_id" : ObjectId("50906d7fa3c412bb040eb5cf"), "student_id" : 22, "type" : "exam", "score" : 65.02518811936324 }
+correct answer

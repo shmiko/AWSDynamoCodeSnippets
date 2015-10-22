@@ -1,0 +1,20 @@
+> db.grades.aggregate({$match:{'type':'exam','score':{$gte:65}}},{$sort:{'score':1}},{$limit:1})
+{ "_id" : ObjectId("50906d7fa3c412bb040eb5cf"), "student_id" : 22, "type" : "exam", "score" : 65.02518811936324 }
+
+var oldid=-1;
+var cursor=db.grades.find({'type':'homework'}).sort({'student_id':1,'score':1});
+while (cursor.hasNext()) { 
+    var doc = cursor.next(); 
+    var id = doc['student_id']; 
+    if (oldid!=id) 
+    {
+        db.grades.remove(doc);
+        oldid=id; 
+    } 
+ }
+
+ for(i=0;i<200;i++) {
+    var cur = db.grades.find({student_id:i,type:'homework'}).sort({score:1}).limit(1);
+    var actualDoc = cur.next();
+    db.grades.remove(actualDoc);
+}

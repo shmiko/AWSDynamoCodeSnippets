@@ -1,0 +1,10 @@
+db.grades.aggregate({$project:{'type':'exam'}},{'$group':{'_id':'$student_id', 'average':{$avg:'$score'}}},{$match:{'average':{$gte:65}}}, {'$sort':{'average':1}}, {'$limit':1})
+
+db.grades.aggregate({'$group':{'_id':'$student_id', 'highest':{$gt:64}}, {'$sort':{'highest':-1}}, {'$limit':1})
+
+db.grades.find({'_id':'$student_id',score:{$gt:64}}, {'$limit':1})
+
+
+db.grades.find({score:{$gt:64}}, {'$limit':1})
+
+db.grades.find({'type':'exam'});

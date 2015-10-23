@@ -41,7 +41,6 @@ namespace M101DotNet.WebApp.Controllers
             {
                 return View(model);
             }
-
             var blogContext = new BlogContext();
             // XXX WORK HERE
             // fetch a user by the email in model.Email
